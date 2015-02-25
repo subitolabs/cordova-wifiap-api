@@ -12,6 +12,8 @@ import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.os.Build;
+import android.annotation.TargetApi;
 
 public class WifiApAPI extends CordovaPlugin {
 
@@ -23,28 +25,25 @@ public class WifiApAPI extends CordovaPlugin {
     public int WIFI_AP_STATE_ENABLING = 2;
     public int WIFI_AP_STATE_ENABLED = 3;
     private static int WIFI_AP_STATE_FAILED = 4;
-
-    public static final String ACTION_ENABLE_AP = "setApEnabled";
-    public static final String ACTION_DISABLE_AP = "setApDisabled";
-
     private final String[] WIFI_STATE_TEXTSTATE = new String[] {
             "DISABLING","DISABLED","ENABLING","ENABLED","FAILED"
     };
 
     private WifiManager wifi;
     private String TAG = "WifiAP";
-
     private String SSID = "";
 
     private int stateWifiWasIn = -1;
 
-    private boolean alwaysEnableWifi = true; //set to false if you want to try and set wifi state back to what it was before wifi ap enabling, true will result in the wifi always being enabled after wifi ap is disabled
+    private boolean alwaysEnableWifi = true; 
 
+    public static final String ACTION_ENABLE_AP = "setApEnabled";
+    public static final String ACTION_DISABLE_AP = "setApDisabled";
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException
     {
-
+        
         try {
             if (ACTION_ENABLE_AP.equals(action))
             {
@@ -78,13 +77,10 @@ public class WifiApAPI extends CordovaPlugin {
     /**
      * Enable/disable wifi
      * @param true or false
-     * @return WifiAP state
      */
     private void setWifiApEnabled(boolean enabled) {
 
         wifi = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
-
-        Log.d(TAG, "*** setWifiApEnabled CALLED **** " + enabled);
 
         WifiConfiguration config = new WifiConfiguration();
         config.SSID = SSID;
@@ -98,11 +94,11 @@ public class WifiApAPI extends CordovaPlugin {
 
         //disable wireless
         if (enabled && wifi.getConnectionInfo() !=null) {
-            Log.d(TAG, "disable wifi: calling");
+            
             wifi.setWifiEnabled(false);
             int loopMax = 10;
             while(loopMax>0 && wifi.getWifiState()!=WifiManager.WIFI_STATE_DISABLED){
-                Log.d(TAG, "disable wifi: waiting, pass: " + (10-loopMax));
+               
                 try {
                     Thread.sleep(500);
                     loopMax--;
@@ -110,30 +106,28 @@ public class WifiApAPI extends CordovaPlugin {
 
                 }
             }
-            Log.d(TAG, "disable wifi: done, pass: " + (10-loopMax));
+           
         }
 
         //enable/disable wifi ap
         int state = WIFI_AP_STATE_UNKNOWN;
         try {
-            Log.d(TAG, (enabled?"enabling":"disabling") +" wifi ap: calling");
+            
             wifi.setWifiEnabled(false);
             Method method1 = wifi.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-            //method1.invoke(wifi, null, enabled); // true
-            method1.invoke(wifi, config, enabled); // true
+            method1.invoke(wifi, config, enabled); 
             Method method2 = wifi.getClass().getMethod("getWifiApState");
             state = (Integer) method2.invoke(wifi);
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            // toastText += "ERROR " + e.getMessage();
         }
 
         //hold thread up while processing occurs
         if (!enabled) {
             int loopMax = 10;
             while (loopMax>0 && (getWifiAPState()==WIFI_AP_STATE_DISABLING || getWifiAPState()==WIFI_AP_STATE_ENABLED || getWifiAPState()==WIFI_AP_STATE_FAILED)) {
-                Log.d(TAG, (enabled?"enabling":"disabling") +" wifi ap: waiting, pass: " + (10-loopMax));
+            
                 try {
                     Thread.sleep(500);
                     loopMax--;
@@ -141,8 +135,7 @@ public class WifiApAPI extends CordovaPlugin {
 
                 }
             }
-            Log.d(TAG, (enabled?"enabling":"disabling") +" wifi ap: done, pass: " + (10-loopMax));
-
+            
             //enable wifi if it was enabled beforehand
             //this is somewhat unreliable and app gets confused and doesn't turn it back on sometimes so added toggle to always enable if you desire
             if(stateWifiWasIn==WifiManager.WIFI_STATE_ENABLED || stateWifiWasIn==WifiManager.WIFI_STATE_ENABLING || stateWifiWasIn==WifiManager.WIFI_STATE_UNKNOWN || alwaysEnableWifi){
@@ -205,13 +198,4 @@ public class WifiApAPI extends CordovaPlugin {
         return this.cordova.getActivity().getApplicationContext();
     }
 
-    private class Object extends JSONObject
-    {
-
-    }
-
-    private class ArrayOfObjects extends ArrayList<Object>
-    {
-
-    }
 }

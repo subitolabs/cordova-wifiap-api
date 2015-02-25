@@ -13,7 +13,7 @@
     <issue>https://github.com/subitolabs/cordova-wifiap-api/issues</issue>
 
     <js-module src="www/wifiap-api.js" name="wifiapAPI">
-        <clobbers target="wifiapAPI" />
+        <clobbers target="WifiApAPI" />
     </js-module>
 
     <!-- android -->

@@ -4,9 +4,9 @@ function WifiApAPI()
     
 }
 
-WifiApAPI.prototype.setApEnabled = function(ssid,successCallback, errorCallback) {
+WifiApAPI.prototype.setApEnabled = function(ssid,errorCallback) {
     cordova.exec(
-        successCallback,
+        function(){},
         errorCallback,
         'WifiApAPI',
         'setApEnabled',
@@ -14,9 +14,9 @@ WifiApAPI.prototype.setApEnabled = function(ssid,successCallback, errorCallback)
     );
 };
 
-WifiApAPI.prototype.setApDisabled = function(successCallback, errorCallback) {
+WifiApAPI.prototype.setApDisabled = function(errorCallback) {
     cordova.exec(
-        successCallback,
+        function(){},
         errorCallback,
         'WifiApAPI',
         'setApDisabled',
