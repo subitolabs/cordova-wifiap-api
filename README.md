@@ -4,6 +4,7 @@ This plugin defines a global `WifiApAPI` object, which offer methods to on/off W
 
 - setApEnabled
 - setApDisabled
+- on
 
 ### Installation
 
@@ -15,5 +16,11 @@ This plugin defines a global `WifiApAPI` object, which offer methods to on/off W
 document.addEventListener('deviceready', function()
 {
     WifiApAPI.setApEnabled("Qomodo",function(e){ console.log(e) });
+
+    
+    WifiApAPI.on('status',function(status){
+         console.log(status);
+    });
+	
 }, false);
 ```
